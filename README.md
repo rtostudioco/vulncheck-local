@@ -1,6 +1,19 @@
+<div align="center">
+  <img src="public/social-preview.png" alt="VulnCheck Local — Local-first defensive security auditing for Windows & Linux. Score ring: 93, Grade A." width="780">
+</div>
+
 # 🛡️ VulnCheck Local
 
+<div align="center">
+
 **Local-first defensive security auditing for your own machines.**
+
+![version](https://img.shields.io/badge/version-1.1.0-10b981?style=flat-square)
+![license](https://img.shields.io/badge/license-MIT-10b981?style=flat-square)
+![platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-10b981?style=flat-square)
+![privacy](https://img.shields.io/badge/privacy-100%25%20local%20%C2%B7%20no%20cloud%20%C2%B7%20no%20telemetry-10b981?style=flat-square)
+
+</div>
 
 VulnCheck Local runs entirely on the machine being audited. It inventories the host, executes **read-only** security checks, scores the result from 0–100, maps findings to CIS-style control categories, and produces professional **PDF / JSON / CSV** reports — with **no cloud account, no telemetry, and no data leaving the machine** (except one optional, explicitly consented AI feature).
 
