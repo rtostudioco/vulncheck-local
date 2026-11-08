@@ -41,23 +41,36 @@ Failures degrade to `UNAVAILABLE`/`PARTIAL` with notes — never to "secure".
 
 ## Run on Windows
 
+Requires **Node.js 20+** (LTS recommended — nodejs.org) and Git (git-scm.com).
+All npm scripts are cross-platform (they also work in plain cmd.exe).
+
 ```powershell
-git clone <repo> ; cd vulncheck-local   # or unzip the release
-npm install                              # or: bun install
-copy .env.example .env
-npx prisma db push
-npm run dev                              # → http://localhost:3000
+git clone https://github.com/rtostudioco/vulncheck-local.git
+cd vulncheck-local
+npm install
+copy .env.example .env        # cmd  (PowerShell: Copy-Item .env.example .env)
+npx prisma db push            # creates db/custom.db (SQLite, local)
+npm run dev                   # → http://localhost:3000
 ```
 
 Click **Run New Audit**. The header badge should show `windows`.
+
+> **Tip:** run the terminal **as administrator** for the fullest evidence —
+> some checks (`net accounts`, `wbadmin`, certain registry reads) return more
+> data elevated. Admin rights are not mandatory; anything blocked simply
+> reports as NOT_ASSESSED / PARTIAL instead of pretending to be secure.
+>
+> **AI explanations (optional):** the switch is off by default; if the AI SDK
+> is not configured on the host, the Explain action degrades gracefully with
+> an error toast — no other feature is affected.
 
 ## Single-executable packaging (optional)
 
 **Option A — production server (recommended):**
 
 ```powershell
-npm run build
-npm start          # serves the standalone Next.js server
+npm run build   # next build + copies static assets (cross-platform)
+npm start       # node .next/standalone/server.js
 ```
 
 **Option B — one self-contained binary with Bun:**
