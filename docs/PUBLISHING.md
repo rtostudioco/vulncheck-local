@@ -99,8 +99,17 @@ git push origin v1.1.0
 
 ---
 
-## 6. Suggested GitHub Social Preview
+## 6. GitHub Social Preview
 
-1280×640 px image with: shield logo 🛡️, the text
-"VulnCheck Local — Local-first security auditing", and the score-ring motif
-(green ring, dark graphite background #0f1412).
+The ready-made preview image ships with the repository at
+**`public/social-preview.png`** (1280×640 px — dark graphite `#0f1412`,
+emerald score-ring motif, shield logo, creator credit).
+
+To upload it:
+
+1. Open your repository → **Settings** → **General** tab
+2. Scroll to the **Social preview** card → **Edit** → **Upload a new image**
+3. Select `public/social-preview.png` → **Save**
+
+> Tip: the file is also served by the app itself at `/social-preview.png`,
+> so you can download it straight from a running instance.
