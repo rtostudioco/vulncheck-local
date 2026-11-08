@@ -1,0 +1,136 @@
+// VulnCheck Local — data model
+// SQLite, schema versioning tracked in DbMeta
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------
+// Module 9 — Database structure
+// ---------------------------------------------------------------
+
+/// Snapshot of the audited host (MODULE A evidence)
+model SystemProfile {
+  id            String         @id @default(cuid())
+  hostname      String
+  platform      String
+  osName        String
+  osVersion     String
+  osBuild       String
+  kernelVersion String?
+  arch          String
+  cpuModel      String?
+  cpuCores      Int?
+  totalMemoryMb Int?
+  primaryIp     String?
+  packageCount  Int?
+  rawJson       String
+  createdAt     DateTime       @default(now())
+  sessions      AuditSession[]
+}
+
+/// One audit run (MODULE I/J output persisted here)
+model AuditSession {
+  id            String          @id @default(cuid())
+  startedAt     DateTime        @default(now())
+  completedAt   DateTime?
+  status        String          @default("RUNNING") // RUNNING | COMPLETED | FAILED
+  progress      Int             @default(0)
+  currentStep   String?
+  platform      String
+  engineVersion String
+  overallScore  Float?
+  grade         String?
+  coverage      Float?
+  /// JSON: { counts: {...}, network: { listeningPorts, interfaces } }
+  summaryJson   String?
+  /// JSON: string[] — assessment limitations disclosed in reports
+  limitations   String?
+  profileId     String?
+  profile       SystemProfile?  @relation(fields: [profileId], references: [id])
+  findings      AuditFinding[]
+  reports       ReportHistory[]
+
+  @@index([startedAt])
+}
+
+/// MODULE J — individual finding (one per evaluated rule per session)
+model AuditFinding {
+  id              String       @id @default(cuid())
+  sessionId       String
+  session         AuditSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  ruleId          String
+  ruleVersion     String
+  category        String
+  title           String
+  description     String
+  severity        String // CRITICAL | HIGH | MEDIUM | LOW | INFO
+  status          String // PASS | FAIL | WARNING | NOT_APPLICABLE | NOT_ASSESSED | ERROR
+  evidence        String
+  riskExplanation String
+  remediation     String
+  verification    String?
+  osTarget        String // linux | windows | both
+  createdAt       DateTime     @default(now())
+
+  @@index([sessionId])
+  @@index([severity])
+}
+
+/// MODULE I — versioned rule registry (seeded from code)
+model SecurityRule {
+  id             String   @id // e.g. VC-FW-001
+  version        String
+  category       String
+  title          String
+  description    String
+  severityIfFail String
+  osTarget       String
+  reference      String?
+  enabled        Boolean  @default(true)
+  updatedAt      DateTime @updatedAt
+}
+
+/// MODULE K — remediation guidance, display-only (v1.0 never executes fixes)
+model RemediationGuide {
+  id           String   @id @default(cuid())
+  ruleId       String
+  osTarget     String
+  problem      String
+  impact       String
+  solution     String
+  verification String
+  createdAt    DateTime @default(now())
+
+  @@unique([ruleId, osTarget])
+}
+
+/// MODULE L — export history
+model ReportHistory {
+  id          String       @id @default(cuid())
+  sessionId   String
+  session     AuditSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  format      String // PDF | JSON | CSV
+  fileName    String
+  generatedAt DateTime     @default(now())
+
+  @@index([sessionId])
+}
+
+/// Key/value application settings (AI consent, retention, ...)
+model ApplicationSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+/// Internal metadata (schema versioning / migrations marker)
+model DbMeta {
+  key   String @id
+  value String
+}
