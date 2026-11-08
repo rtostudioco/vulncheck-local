@@ -38,6 +38,16 @@ VulnCheck Local runs entirely on the machine being audited. It inventories the h
 
 ---
 
+## 📸 Screenshots
+
+| Overview — score, severity & category posture | Compliance — CIS-style, in Español |
+|---|---|
+| ![Overview dashboard with 0–100 score ring, severity summary and category posture bars](public/screenshot-dashboard.png) | ![Compliance view grouped by control category, Spanish UI](public/screenshot-compliance.png) |
+
+![Security Assessment — every versioned rule resolves to an honest PASS / FAIL / WARNING / NOT_APPLICABLE / NOT_ASSESSED / ERROR state](public/screenshot-assessment.png)
+
+---
+
 ## 🧱 Tech stack
 
 | Layer | Technology |
