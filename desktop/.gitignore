@@ -1,0 +1,20 @@
+# Frontend
+node_modules/
+dist/
+
+# Rust
+src-tauri/target/
+
+# App-owned database (never commit)
+*.db
+*.db-wal
+*.db-shm
+
+# Env / secrets
+.env
+.env.*
+*.pfx
+
+# OS
+.DS_Store
+Thumbs.db

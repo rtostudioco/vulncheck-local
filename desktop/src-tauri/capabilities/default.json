@@ -1,0 +1,9 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Minimal capability for the Sentinel Desk main window. Only Tauri core defaults are granted; application commands are registered by the binary itself. No shell, filesystem, process or broad plugin permissions are granted — Sentinel Desk is strictly read-only towards the host.",
+  "windows": ["main"],
+  "permissions": [
+    "core:default"
+  ]
+}

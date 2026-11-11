@@ -1,0 +1,81 @@
+# Sentinel Desk 1.0 — Windows release build (CI)
+#
+# Builds the Tauri 2 desktop port located in desktop/ on a real Windows
+# runner and produces:
+#   * Sentinel Desk_1.0.0_x64_en-US.msi   (WiX, per-machine)
+#   * Sentinel Desk_1.0.0_x64-setup.exe   (NSIS)
+#
+# How to get your installer:
+#   1. Push this repository to GitHub.
+#   2. Push a tag:   git tag v1.0.0 && git push origin v1.0.0
+#      (or run the workflow manually from the Actions tab).
+#   3. Open the workflow run → Artifacts → download "sentinel-desk-windows".
+#      If triggered by a v* tag, the artifacts are also attached to a draft
+#      GitHub Release.
+#
+# Code signing is intentionally disabled by default. To sign, add secrets
+# WINDOWS_CERTIFICATE (PFX base64) + WINDOWS_CERTIFICATE_PASSWORD and set
+# TAURI_SIGNING differences in desktop/src-tauri/tauri.conf.json — see
+# docs/INSTALLATION.md.
+
+name: release-windows
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust (stable, MSVC)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Build Tauri app (MSI + NSIS)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: "desktop"
+          tauriScript: npx tauri
+          # tagName / releaseName only apply when triggered by a v* tag —
+          # tauri-action then also attaches the artifacts to a GitHub Release.
+          tagName: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
+          releaseName: ${{ startsWith(github.ref, 'refs/tags/v') && format('Sentinel Desk {0}', github.ref_name) || '' }}
+          releaseDraft: true
+          prerelease: false
+          args: "--target x86_64-pc-windows-msvc"
+
+      - name: Upload installers as workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-desk-windows
+          path: |
+            desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+            desktop/src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          if-no-files-found: error

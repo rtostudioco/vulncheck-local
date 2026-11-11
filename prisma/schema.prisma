@@ -1,5 +1,7 @@
-// VulnCheck Local — data model
-// SQLite, schema versioning tracked in DbMeta
+// SENTINEL DESK 1.0 — Local-first SOC investigation platform
+// SQLite persistence layer. All timestamps stored in UTC.
+// Provenance: every event carries `synthetic` + `sourceRef` so an analyst
+// can always trace a detection back to its origin (§7 pipeline requirement).
 
 generator client {
   provider = "prisma-client-js"
@@ -7,130 +9,204 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:../db/sentinel.db"
 }
 
-// ---------------------------------------------------------------
-// Module 9 — Database structure
-// ---------------------------------------------------------------
+// ─── Events ────────────────────────────────────────────────────────────────
 
-/// Snapshot of the audited host (MODULE A evidence)
-model SystemProfile {
-  id            String         @id @default(cuid())
-  hostname      String
-  platform      String
-  osName        String
-  osVersion     String
-  osBuild       String
-  kernelVersion String?
-  arch          String
-  cpuModel      String?
-  cpuCores      Int?
-  totalMemoryMb Int?
-  primaryIp     String?
-  packageCount  Int?
-  rawJson       String
-  createdAt     DateTime       @default(now())
-  sessions      AuditSession[]
+model Event {
+  id        String   @id @default(cuid())
+  ts        DateTime // event generation/collection time (UTC)
+  channel   String // "Security" | "System" | "PowerShell/Operational" | "TaskScheduler/Operational" | "Sysmon"
+  provider  String // e.g. "Microsoft-Windows-Security-Auditing"
+  eventId   Int
+  level     String // Information | Warning | Error | Critical
+  computer  String
+  /// Windows record number inside the channel (provenance)
+  recordId  String?
+  /// Subject / initiating account
+  userName  String?
+  userSid   String?
+  targetUserName String?
+  processId Int?
+  processName String?
+  parentProcessId Int?
+  parentProcessName String?
+  commandLine String?
+  ipAddress String?
+  logonType Int?
+  serviceName String?
+  taskName  String?
+  /// Denormalized searchable text of the normalized payload
+  summary   String?
+  /// Original raw (Windows XML-like) payload — provenance for reproduction
+  raw       String?
+  /// True when produced by the labeled synthetic demo source
+  synthetic Boolean  @default(true)
+  /// Free-form provenance reference, e.g. "fixtures/brute_force.json#3"
+  sourceRef String?
+  alerts    AlertEvent[]
+  createdAt DateTime @default(now())
+
+  @@index([ts])
+  @@index([eventId])
+  @@index([channel])
+  @@index([computer])
+  @@index([processId])
 }
 
-/// One audit run (MODULE I/J output persisted here)
-model AuditSession {
-  id            String          @id @default(cuid())
-  startedAt     DateTime        @default(now())
-  completedAt   DateTime?
-  status        String          @default("RUNNING") // RUNNING | COMPLETED | FAILED
-  progress      Int             @default(0)
-  currentStep   String?
-  platform      String
-  engineVersion String
-  overallScore  Float?
-  grade         String?
-  coverage      Float?
-  /// JSON: { counts: {...}, network: { listeningPorts, interfaces } }
-  summaryJson   String?
-  /// JSON: string[] — assessment limitations disclosed in reports
-  limitations   String?
-  profileId     String?
-  profile       SystemProfile?  @relation(fields: [profileId], references: [id])
-  findings      AuditFinding[]
-  reports       ReportHistory[]
-
-  @@index([startedAt])
+model EventSource {
+  id            String    @id @default(cuid())
+  channel       String    @unique
+  displayName   String
+  description   String?
+  /// active | demo | permission_required | unavailable
+  status        String    @default("demo")
+  available     Boolean   @default(true)
+  requiresAdmin Boolean   @default(false)
+  note          String?
+  lastCollectAt DateTime?
+  eventsCollected Int     @default(0)
 }
 
-/// MODULE J — individual finding (one per evaluated rule per session)
-model AuditFinding {
-  id              String       @id @default(cuid())
-  sessionId       String
-  session         AuditSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  ruleId          String
-  ruleVersion     String
-  category        String
-  title           String
-  description     String
-  severity        String // CRITICAL | HIGH | MEDIUM | LOW | INFO
-  status          String // PASS | FAIL | WARNING | NOT_APPLICABLE | NOT_ASSESSED | ERROR
-  evidence        String
-  riskExplanation String
-  remediation     String
-  verification    String?
-  osTarget        String // linux | windows | both
-  createdAt       DateTime     @default(now())
+// ─── Detection ─────────────────────────────────────────────────────────────
 
-  @@index([sessionId])
+model DetectionRule {
+  id          String @id // "SD-001"
+  name        String
+  description String
+  version     String @default("1.0.0")
+  author      String @default("Sentinel Desk Core Team")
+  severity    String // critical | high | medium | low | info
+  category    String // credential_access | execution | persistence | defense_evasion | discovery | command_and_control
+  mitreId     String?
+  mitreName   String?
+  enabled     Boolean @default(true)
+  /// Portable JSON rule logic (Sigma-inspired) — see src/lib/engine/rules.ts
+  logic       String
+  falsePositives String?
+  limitations    String?
+  evidenceFields String?
+  alerts      Alert[]
+  createdAt   DateTime @default(now())
+}
+
+model Alert {
+  id         String    @id @default(cuid())
+  ruleId     String
+  severity   String
+  title      String
+  summary    String
+  /// 0..100 — rule-defined confidence in this match
+  confidence Int       @default(60)
+  /// open | triaged | linked_to_incident | closed_fp
+  status     String    @default("open")
+  /// JSON: [{ eventId, matched: [{field, value, op}] }]
+  evidence   String
+  mitreId    String?
+  computer   String?
+  userName   String?
+  incidentId String?
+  incident   Incident? @relation(fields: [incidentId], references: [id])
+  rule       DetectionRule @relation(fields: [ruleId], references: [id])
+  events     AlertEvent[]
+  createdAt  DateTime  @default(now())
+
+  @@index([createdAt])
+  @@index([ruleId])
+  @@index([incidentId])
   @@index([severity])
 }
 
-/// MODULE I — versioned rule registry (seeded from code)
-model SecurityRule {
-  id             String   @id // e.g. VC-FW-001
-  version        String
-  category       String
-  title          String
-  description    String
-  severityIfFail String
-  osTarget       String
-  reference      String?
-  enabled        Boolean  @default(true)
-  updatedAt      DateTime @updatedAt
+// Join table: which physical events constitute an alert's evidence
+model AlertEvent {
+  alertId String
+  eventId String
+  alert   Alert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  event   Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([alertId, eventId])
 }
 
-/// MODULE K — remediation guidance, display-only (v1.0 never executes fixes)
-model RemediationGuide {
-  id           String   @id @default(cuid())
-  ruleId       String
-  osTarget     String
-  problem      String
-  impact       String
-  solution     String
-  verification String
-  createdAt    DateTime @default(now())
+// ─── Incidents ─────────────────────────────────────────────────────────────
 
-  @@unique([ruleId, osTarget])
+model Incident {
+  id         String   @id @default(cuid())
+  code       String   @unique // "INC-0007"
+  title      String
+  severity   String
+  /// new | investigating | monitoring | resolved | false_positive
+  status     String   @default("new")
+  /// Human-readable correlation hypothesis (explicitly NOT a confirmation)
+  hypothesis String?
+  /// JSON: { fields: string[], windowSec: number, host: string }
+  correlationMeta String?
+  summary    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  alerts     Alert[]
+  notes      IncidentNote[]
+  aiAnalyses AiAnalysis[]
+
+  @@index([status])
+  @@index([severity])
 }
 
-/// MODULE L — export history
-model ReportHistory {
-  id          String       @id @default(cuid())
-  sessionId   String
-  session     AuditSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  format      String // PDF | JSON | CSV
-  fileName    String
-  generatedAt DateTime     @default(now())
-
-  @@index([sessionId])
+model IncidentNote {
+  id         String   @id @default(cuid())
+  incidentId String
+  incident   Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  /// analyst | system | ai
+  author     String   @default("analyst")
+  body       String
+  createdAt  DateTime @default(now())
 }
 
-/// Key/value application settings (AI consent, retention, ...)
-model ApplicationSetting {
-  key       String   @id
-  value     String
-  updatedAt DateTime @updatedAt
+// ─── AI analyst (full auditability, §8) ────────────────────────────────────
+
+model AiAnalysis {
+  id          String    @id @default(cuid())
+  incidentId  String?
+  incident    Incident? @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  /// "incident_summary" | "detection_explain" | "report_draft" | "indicator_context"
+  kind        String
+  provider    String
+  model       String
+  privacyMode String // "local_only" | "redacted_remote" | "sandbox"
+  promptVersion String
+  inputSummary String // what was sent (post-redaction)
+  output      String
+  createdAt   DateTime  @default(now())
+
+  @@index([incidentId])
 }
 
-/// Internal metadata (schema versioning / migrations marker)
-model DbMeta {
+// ─── Threat intelligence ───────────────────────────────────────────────────
+
+model Indicator {
+  id        String   @id @default(cuid())
+  type      String // hash | ip | domain | url
+  value     String   @unique
+  verdict   String   @default("unknown") // unknown | benign | suspicious | malicious
+  source    String   @default("local") // local | external:user_authorized
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+// ─── Settings & audit ──────────────────────────────────────────────────────
+
+model Setting {
   key   String @id
-  value String
+  value String // JSON
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actor     String   @default("local-analyst")
+  action    String // e.g. "settings.update", "incident.status", "ai.analyze", "data.purge"
+  target    String?
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }

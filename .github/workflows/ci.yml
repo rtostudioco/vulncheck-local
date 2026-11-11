@@ -1,34 +1,36 @@
-name: CI
+# Sentinel Desk 1.0 — continuous integration
+#
+# Runs on every push and PR to main:
+#   1. Lint (ESLint, Next.js rules)
+#   2. Strict type check (tsc --noEmit)
+#
+name: ci
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
-  verify:
-    name: Type check & build
+  quality:
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: file:../db/custom.db
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: npm install
+        run: bun install
 
-      - name: Create SQLite database & generate Prisma client
-        run: npx prisma db push
+      - name: Generate Prisma client
+        run: bun run db:generate
+
+      - name: Lint
+        run: bun run lint
 
       - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Build (standalone output)
-        run: npm run build
+        run: bunx tsc --noEmit

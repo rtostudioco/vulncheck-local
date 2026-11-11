@@ -43,74 +43,59 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/*
+ * SENTINEL DESK — SOC Editorial + Immersive Cyber Defense Laboratory
+ * Deep graphite surfaces · restrained emerald accent · cool cyan details
+ * Dark-only product theme (single source of truth on :root).
+ */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.5rem;
+  --background: #0b0e11;
+  --foreground: #e8ecf0;
+  --card: #12161b;
+  --card-foreground: #e8ecf0;
+  --popover: #151a20;
+  --popover-foreground: #e8ecf0;
+  --primary: #3ba97c;
+  --primary-foreground: #07130e;
+  --secondary: #1a2129;
+  --secondary-foreground: #cdd6de;
+  --muted: #1a2026;
+  --muted-foreground: #8b98a5;
+  --accent: #1c242c;
+  --accent-foreground: #e8ecf0;
+  --destructive: #c2352f;
+  --border: #222a32;
+  --input: #29323b;
+  --ring: #3ba97c;
+  --chart-1: #3ba97c;
+  --chart-2: #4db6c4;
+  --chart-3: #d9a441;
+  --chart-4: #cf5b52;
+  --chart-5: #6f9dc9;
+  --sidebar: #0a0d10;
+  --sidebar-foreground: #cdd6de;
+  --sidebar-primary: #3ba97c;
+  --sidebar-primary-foreground: #07130e;
+  --sidebar-accent: #161c23;
+  --sidebar-accent-foreground: #e8ecf0;
+  --sidebar-border: #1a2128;
+  --sidebar-ring: #3ba97c;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
+/* Semantic severity — never color alone: badges always carry text labels */
+.sev-critical { color: #f07a72; background: #361316; border-color: #5c2428; }
+.sev-critical-dot { background: #d24b42; }
+.sev-high { color: #f2a06c; background: #361d10; border-color: #5c3520; }
+.sev-high-dot { background: #e08844; }
+.sev-medium { color: #e5bc55; background: #332a10; border-color: #5a4a1e; }
+.sev-medium-dot { background: #d9a441; }
+.sev-low { color: #7fa9d0; background: #13212e; border-color: #24405a; }
+.sev-low-dot { background: #5f8fbd; }
+.sev-info { color: #5cbecd; background: #0e272c; border-color: #1d454e; }
+.sev-info-dot { background: #4db6c4; }
+.sev-success { color: #58c48f; background: #10241a; border-color: #1f4231; }
+.sev-success-dot { background: #3ba97c; }
 
 @layer base {
   * {
@@ -118,42 +103,51 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04";
+  }
+  ::selection {
+    background: rgba(59, 169, 124, 0.28);
   }
 }
 
-/* ---------- VulnCheck Local: dark graphite theme scope ---------- */
-.vc-dark {
-  --background: oklch(0.145 0.01 250);
-  --foreground: oklch(0.93 0.006 250);
-  --card: oklch(0.185 0.012 250);
-  --card-foreground: oklch(0.93 0.006 250);
-  --popover: oklch(0.185 0.012 250);
-  --popover-foreground: oklch(0.93 0.006 250);
-  --primary: oklch(0.72 0.17 162);
-  --primary-foreground: oklch(0.16 0.03 162);
-  --secondary: oklch(0.24 0.012 250);
-  --secondary-foreground: oklch(0.9 0.006 250);
-  --muted: oklch(0.22 0.012 250);
-  --muted-foreground: oklch(0.68 0.012 250);
-  --accent: oklch(0.26 0.02 162);
-  --accent-foreground: oklch(0.9 0.02 162);
-  --destructive: oklch(0.63 0.21 25);
-  --destructive-foreground: oklch(0.97 0.01 25);
-  --border: oklch(0.28 0.014 250);
-  --input: oklch(0.28 0.014 250);
-  --ring: oklch(0.72 0.17 162);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.165 0.01 250);
-  --sidebar-foreground: oklch(0.93 0.006 250);
-  --sidebar-primary: oklch(0.72 0.17 162);
-  --sidebar-primary-foreground: oklch(0.16 0.03 162);
-  --sidebar-accent: oklch(0.24 0.012 250);
-  --sidebar-accent-foreground: oklch(0.9 0.02 162);
-  --sidebar-border: oklch(0.28 0.014 250);
-  --sidebar-ring: oklch(0.72 0.17 162);
-  color-scheme: dark;
+/* Technical scrollbars */
+.scroll-slim::-webkit-scrollbar { width: 8px; height: 8px; }
+.scroll-slim::-webkit-scrollbar-track { background: transparent; }
+.scroll-slim::-webkit-scrollbar-thumb {
+  background: #2a333c;
+  border-radius: 8px;
+  border: 2px solid var(--background);
 }
-.vc-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
-.vc-scroll::-webkit-scrollbar-track { background: transparent; }
-.vc-scroll::-webkit-scrollbar-thumb { background: oklch(0.32 0.014 250); border-radius: 4px; }
-.vc-scroll::-webkit-scrollbar-thumb:hover { background: oklch(0.42 0.03 162); }
+.scroll-slim::-webkit-scrollbar-thumb:hover { background: #3a454f; }
+
+/* Fine technical separators */
+.hairline {
+  background-image: linear-gradient(90deg, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  height: 1px;
+}
+
+/* Subtle grid texture for hero panels (wireframe-inspired language) */
+.grid-texture {
+  background-image:
+    linear-gradient(rgba(59, 169, 124, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 169, 124, 0.045) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+/* Print: reports PDF export */
+@media print {
+  body { background: #fff !important; color: #111 !important; }
+  .no-print { display: none !important; }
+  .print-plain {
+    background: #fff !important;
+    color: #111 !important;
+    border-color: #ddd !important;
+  }
+  .print-plain * { color: #111 !important; }
+}

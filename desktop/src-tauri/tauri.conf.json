@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Sentinel Desk",
+  "version": "1.0.0",
+  "identifier": "com.sentineldesk.app",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": false,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Sentinel Desk — Local Intelligence. Human-Controlled Defense.",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 1024,
+        "minHeight": 700,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi", "nsis"],
+    "icon": ["icons/icon.ico", "icons/icon.png"],
+    "category": "Utility",
+    "shortDescription": "Local-first SOC investigation assistant",
+    "longDescription": "Sentinel Desk 1.0 — Local Intelligence. Human-Controlled Defense. Read-only Windows Event Log collector with explainable, rule-based detections and human-controlled incident workflow. NOT an antivirus, EDR or enterprise SIEM; it never modifies the system it observes.",
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "wix": {},
+      "nsis": {
+        "installMode": "perMachine"
+      }
+    }
+  }
+}

@@ -32,7 +32,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-!.env.example
 
 # vercel
 .vercel
@@ -53,15 +52,22 @@ prompt
 server.log
 # Skills directory
 /skills/
+# local databases (regenerate with: bun run db:push)
+/db/*.db
+/db/*.db-journal
 
-# VulnCheck Local — local data & sandbox artifacts
-db/*.db
-db/*.db-journal
-/upload/
-/download/
-/agent-ctx/
-/examples/
-/.zscripts/
-/.z-ai-config
-# sandbox-only runtime test scripts
-/tests/
+# environment
+.env
+
+# sandbox-only artifacts (not part of the product)
+/agent-ctx
+/tool-results
+/upload
+/download
+/examples
+/mini-services
+/.zscripts
+Caddyfile
+/social-preview.html
+/public/sentinel-desk-github.zip
+/public/GUIA-GITHUB-ES.md
